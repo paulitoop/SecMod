@@ -23,8 +23,8 @@ def move_file(file_name, mode):
         if idFile.isdigit() == 0:
             print("Неверный номер файла")
             return -1
-        if int(idFile) > files
-        shutil.move("C:\\Users\\pashc\\Desktop\\Уник\\Модели безопасности КС\\Лаборатораня 1\\Private"+files[int(idFile)-1],
+        if int(idFile) > files:
+            shutil.move("C:\\Users\\pashc\\Desktop\\Уник\\Модели безопасности КС\\Лаборатораня 1\\Private"+files[int(idFile)-1],
                     "C:\\Users\\pashc\\Desktop\\Уник\\Модели безопасности КС\\Лаборатораня 1\\Public")
         return 0
     else:
