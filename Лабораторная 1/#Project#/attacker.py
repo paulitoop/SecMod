@@ -5,6 +5,7 @@ import shutil
 def timed_checker(files):
     newfiles = os.listdir("Public")
     if newfiles != files:
+        print("Created new file:")
         for file in newfiles:
             if not(file in newfiles):
                 print(f"Created new file:{file}!")
@@ -18,7 +19,7 @@ if __name__ == '__main__':
         while 1:
             flag = 0
             files = timed_checker(files)
-            print(files)
+            
             
         
     
