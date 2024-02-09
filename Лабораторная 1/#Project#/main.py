@@ -14,18 +14,17 @@ def move_file(file_name, mode):
     files = os.listdir("Private")
 
     if mode == "1":
-        shutil.copytree("Private",
-                        "Public",
-                        dirs_exist_ok = True)
+        shutil.copytree("Private", "Public", dirs_exist_ok = True)
         return 0
     elif mode == "0":
         idFile = input("Введите номер файла: ")
         if idFile.isdigit() == 0:
             print("Неверный номер файла")
             return -1
-        if int(idFile) > files:
-            shutil.move("Private"+files[int(idFile)-1],
-"Public")
+        if int(idFile) <= len(files):
+            shutil.copy("Private\\"+files[int(idFile)-1], "Public")
+        else:
+            print("Некоректный номер файла")
         return 0
     else:
         print("Некорректный параметр переноса")
