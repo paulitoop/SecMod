@@ -3,7 +3,7 @@ import shutil
 
 
 def create_file(file_name):
-    direct = "C:\\Users\\pashc\\Desktop\\Уник\\Модели безопасности КС\\Лаборатораня 1\\Private"
+    direct = "Private"
     file = open(direct+"\\"+file_name, 'w+')
     file.write("Hello World!!!!!!!!!!!!!!!!")
     file.close()
@@ -11,21 +11,20 @@ def create_file(file_name):
 
 
 def move_file(file_name, mode):
-    files = os.listdir("C:\\Users\\pashc\\Desktop\\Уник\\Модели безопасности КС\\Лаборатораня 1\\Private")
+    files = os.listdir("Private")
 
     if mode == "1":
-        shutil.copytree("C:\\Users\\pashc\\Desktop\\Уник\\Модели безопасности КС\\Лаборатораня 1\\Private",
-                        "C:\\Users\\pashc\\Desktop\\Уник\\Модели безопасности КС\\Лаборатораня 1\\Public",
-                        dirs_exist_ok = True)
+        shutil.copytree("Private", "Public", dirs_exist_ok = True)
         return 0
     elif mode == "0":
         idFile = input("Введите номер файла: ")
         if idFile.isdigit() == 0:
             print("Неверный номер файла")
             return -1
-        if int(idFile) > files:
-            shutil.move("C:\\Users\\pashc\\Desktop\\Уник\\Модели безопасности КС\\Лаборатораня 1\\Private"+files[int(idFile)-1],
-                    "C:\\Users\\pashc\\Desktop\\Уник\\Модели безопасности КС\\Лаборатораня 1\\Public")
+        if int(idFile) <= len(files):
+            shutil.copy("Private\\"+files[int(idFile)-1], "Public")
+        else:
+            print("Некоректный номер файла")
         return 0
     else:
         print("Некорректный параметр переноса")
@@ -44,7 +43,7 @@ if __name__ == '__main__':
             path = input("Введите имя файла: ")
             create_file(path+".txt")
         elif mode == "2":
-            files = os.listdir("C:\\Users\\pashc\\Desktop\\Уник\\Модели безопасности КС\\Лаборатораня 1\\Private")
+            files = os.listdir("Private")
             i = 1
             for file in files:
                 print(f"{i}. {file}")
