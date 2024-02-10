@@ -5,20 +5,32 @@ from tkinter import ttk
 
 intr_files = os.listdir("Intruder")
 public_files = os.listdir("Public")
+init_scanning = False
 
-def timed_checker(files):
-    global intr_files, public_files
-    newfiles = os.listdir("Public")
-    if newfiles != files:
-        print("Created new file:")
-        for nfile in newfiles:
-            flag = 0
-            for file in files:
-                if nfile == file:
-                    flag = 1
-            if flag == 0:
-                print(f"New file is:{nfile}")
-    return newfiles
+def timed_checker(status=None):
+    global intr_files, public_files, init_scanning
+    dif = []
+    if status == "start":
+        init_scanning = True
+    if status == "stop":
+        init_scanning = False
+
+    if init_scanning == True:
+        newfiles = os.listdir("Public")
+        if newfiles != public_files:
+            for nfile in newfiles:
+                flag = 0
+                for file in public_files:
+                    if nfile == file:
+                        flag = 1
+                if flag == 0:
+                    dif.append(nfile)
+        for i in dif:
+            public_listbox.insert(0, i+" (новый)")
+        public_files = newfiles
+        public_listbox.after(1000, timed_checker)
+
+    return 0
 
 
 def move_all():
@@ -33,7 +45,6 @@ def move_all():
                 flag = 1
         if flag == 0:
             dif.append(nfile)
-    print(dif)
     for i in dif:
         intr_listbox.insert(0, i)
     
@@ -51,23 +62,25 @@ if __name__ == '__main__':
     for i in range(3): window.columnconfigure(index=i, weight=1)
     for i in range(8): window.rowconfigure(index=i, weight=1)
 
-    label_public = Label(text = "Содержимое публичной\nпапки",font=("Arial", 14),relief="ridge")
+    label_public = Label(text = "Публичная папка",font=("Arial", 14),relief="ridge")
     label_public.grid(row=0, column=0)
     label_button = Label(text = "Выберете действие",font=("Arial", 14),relief="ridge")
     label_button.grid(row=1, column=1)
     label_intr = Label(text = "Папка злоумышленника",font=("Arial", 14),relief="ridge")
     label_intr.grid(row=0, column=2)
     
-    
-
     public_listbox = Listbox(listvariable=StringVar(value=public_files), yscrollcommand=True)
     public_listbox.grid(row=1, column=0, rowspan=6)
     intr_listbox = Listbox(listvariable=StringVar(value=intr_files))
     intr_listbox.grid(row=1, column=2, rowspan=6)
 
     ttk.Button(text="Перенести\n      все",command =move_all).grid(row=2, column=1, padx=2, pady=2)
-    ttk.Button(text="Запустить\n сканнер").grid(row=3, column=1, padx=2, pady=2)
-    ttk.Button(text="Остановить\n  сканнер").grid(row=4, column=1, padx=2, pady=2)
+
+    ttk.Button(text="Запустить\n сканнер",\
+               command =lambda: timed_checker("start")).grid(row=3, column=1, padx=2, pady=2)
+
+    ttk.Button(text="Остановить\n  сканнер",\
+               command =lambda: timed_checker("stop")).grid(row=4, column=1, padx=2, pady=2)
     
 
     mainloop()
