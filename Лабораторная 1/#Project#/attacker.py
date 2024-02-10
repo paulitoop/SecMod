@@ -12,8 +12,10 @@ def timed_checker(status=None):
     dif = []
     if status == "start":
         init_scanning = True
+        st_but["text"] = "Сканнер\nзапущен"
     if status == "stop":
         init_scanning = False
+        st_but["text"] = "Запустить\n сканнер"
 
     if init_scanning == True:
         newfiles = os.listdir("Public")
@@ -58,15 +60,17 @@ if __name__ == '__main__':
     window = Tk()  
     window.title("Attacker's window")  
     window.geometry('700x300')
+    window.configure(bg='#4B0082')
+   
     window.resizable(width=False, height=False)
     for i in range(3): window.columnconfigure(index=i, weight=1)
     for i in range(8): window.rowconfigure(index=i, weight=1)
 
-    label_public = Label(text = "Публичная папка",font=("Arial", 14),relief="ridge")
+    label_public = Label(text = "Публичная папка",background="#000000", foreground="#00FF7F",font=("Arial", 14),relief="ridge")
     label_public.grid(row=0, column=0)
-    label_button = Label(text = "Выберете действие",font=("Arial", 14),relief="ridge")
+    label_button = Label(text = "Выберете действие",background="#000000", foreground="#00FF7F",font=("Arial", 14),relief="ridge")
     label_button.grid(row=1, column=1)
-    label_intr = Label(text = "Папка злоумышленника",font=("Arial", 14),relief="ridge")
+    label_intr = Label(text = "Папка злоумышленника",background="#000000", foreground="#00FF7F",font=("Arial", 14),relief="ridge")
     label_intr.grid(row=0, column=2)
     
     public_listbox = Listbox(listvariable=StringVar(value=public_files), yscrollcommand=True)
@@ -76,9 +80,9 @@ if __name__ == '__main__':
 
     ttk.Button(text="Перенести\n      все",command =move_all).grid(row=2, column=1, padx=2, pady=2)
 
-    ttk.Button(text="Запустить\n сканнер",\
-               command =lambda: timed_checker("start")).grid(row=3, column=1, padx=2, pady=2)
-
+    st_but = ttk.Button(text="Запустить\n сканнер",\
+               command =lambda: timed_checker("start"))
+    st_but.grid(row=3, column=1, padx=2, pady=2)
     ttk.Button(text="Остановить\n  сканнер",\
                command =lambda: timed_checker("stop")).grid(row=4, column=1, padx=2, pady=2)
     
