@@ -11,31 +11,31 @@ def create_file(file_name):
     return 0
 
 
-def move_file(file_name, mode):
-    files = os.listdir("../Private")
-    if mode == "2":
+def move_file(listPr, listPb, mode):
+    if mode == 2:
         shutil.copytree("..//Private", "..//Public", dirs_exist_ok = True)
-        print("Файлы успешно перенесены!")
-        return 0
-    elif mode == "1":
-        idFile = input("Введите номер файла: ")
-        if idFile.isdigit() == 0:
-            print("Неверный номер файла!")
-            return -1
-        if int(idFile) <= len(files):
-            shutil.copy("..//Private\\"+files[int(idFile)-1], "..//Public")
-            print(f"Файл {files[int(idFile)-1]} успешно перенесен!")
-            return 0
-        else:
-            print("Некоректный номер файла!")
-        return 0
-    else:
-        print("Некорректный параметр переноса!")
-        return 1
+    elif mode == 1:
+        for file in listPr.curselection():
+            shutil.copy("..//Private//"+listPr.get(file), "..//Public")
+    update_file_list(listPb, "..//Public")
+    return 0
 
 
+def update_file_list(listbox, directory_path):
+    file_list = os.listdir(directory_path)
+    listbox.delete(0, END)  # Очищаем текущий список файлов
+    for file in file_list:
+        listbox.insert(END, file)  # Добавляем файлы в listbox
+   # mw.after(1000, update_file_list, listbox, directory_path)  # Проверяем каждую секунду
 
+def hello(list):
+    l = list.curselection()
+    print(list.get(l))
+    return 0
 if __name__ == '__main__':
+
+    dirPr = "..//Private"
+    dirPb = "..//Public"
 
     mw = Tk()
     mw.title("Users's programm")
@@ -46,9 +46,39 @@ if __name__ == '__main__':
 
     for i in range(3): mw.columnconfigure(i,weight=1)
     for i in range(8): mw.rowconfigure(i, weight=1)
-    label1 = Label(text = "Hello world!")
-    label1.pack()
 
+    # Создание надписей
+    labelPrivate = Label(text = "Private folder", background= "#66CDAA",font =("Arial", 11))
+    labelPrivate.grid(row=0,column=0)
+    labelPublic = Label(text="Public folder", background="#66CDAA", font=("Arial", 11))
+    labelPublic.grid(row=0, column=2)
+    # Создание списка файлов публичной папки
+    listPublic = Listbox(selectmode=EXTENDED, yscrollcommand="True",borderwidth=0, highlightthickness=0, background="#E0FFFF")
+    listPublic.grid(row =1, column =2)
+    listPublic.bindtags(("listPublic", "mw", "all"))
+    update_file_list(listPublic, dirPb)
+    # Создание списка файлов приватной папки
+    listPrivate = Listbox(selectmode=EXTENDED, yscrollcommand="True", borderwidth=0, highlightthickness=0, background="#E0FFFF")
+    listPrivate.grid(row=1, column=0)
+    update_file_list(listPrivate, dirPr)
+
+    # Настройка стиля для кнопок
+    style = ttk.Style()
+    style.theme_use('alt')
+    style.configure('TButton',
+                    background="#E0FFFF",
+                    width=20,
+                    borderwidth=1,
+                    focusthickness=3,
+                    focuscolor='none')
+    style.map('TButton', background=[('active', "#AFEEEE")])
+    
+    # Создание кнопки копирования всех файлов
+
+    btCopyAll = ttk.Button(text = "Move all files", command=lambda: move_file(listPrivate, listPublic,2))
+    btCopyAll.grid(row= 0,column = 1)
+    btCopySelect = ttk.Button(text="Move selected files", command=lambda: move_file(listPrivate, listPublic, 1))
+    btCopySelect.grid(row=1, column=1, sticky="n")
     mw.mainloop()
 
 
