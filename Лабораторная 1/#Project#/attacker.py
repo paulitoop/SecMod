@@ -3,8 +3,8 @@ import shutil
 from tkinter import *
 from tkinter import ttk
 
-intr_files = os.listdir("Intruder")
-public_files = os.listdir("Public")
+intr_files = os.listdir("../Intruder")
+public_files = os.listdir("../IPublic")
 init_scanning = False
 
 def timed_checker(status=None):
@@ -18,7 +18,7 @@ def timed_checker(status=None):
         st_but["text"] = "Запустить\n сканнер"
 
     if init_scanning == True:
-        newfiles = os.listdir("Public")
+        newfiles = os.listdir("../Public")
         if newfiles != public_files:
             for nfile in newfiles:
                 flag = 0
@@ -37,8 +37,8 @@ def timed_checker(status=None):
 
 def move_all():
     global intr_files
-    shutil.copytree("Public", "Intruder", dirs_exist_ok = True)
-    newintr_files = os.listdir("Intruder")
+    shutil.copytree("../Public", "../Intruder", dirs_exist_ok = True)
+    newintr_files = os.listdir("../Intruder")
     dif = []
     for nfile in newintr_files:
         flag = 0
