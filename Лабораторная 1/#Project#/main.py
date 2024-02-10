@@ -28,9 +28,9 @@ def move_file(listPr, listPb, mode):
 
 def update_file_list(listbox, directory_path):
     file_list = os.listdir(directory_path)
-    listbox.delete(0, END)  # Очищаем текущий список файлов
+    listbox.delete(0, END)
     for file in file_list:
-        listbox.insert(END, file)  # Добавляем файлы в listbox
+        listbox.insert(END, file)
    # mw.after(1000, update_file_list, listbox, directory_path)  # Проверяем каждую секунду
 
 def hello(list):
