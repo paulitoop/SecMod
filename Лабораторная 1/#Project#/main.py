@@ -5,7 +5,7 @@ from tkinter import ttk
 def create_file(entry, listPr):
     direct = "..//Private"
     file_name = entry.get()
-    if file_name == "" or not set(".,:;!_*-+()/#¤%&)").isdisjoint(file_name): return 1
+    if file_name == "" or not set(",:;!_*-+()/#¤%&)").isdisjoint(file_name) or file_name[0]=="." : return 1
     file = open(direct+"//"+file_name, 'w+')
     file.write("Hello World!!!!!!!!!!!!!!!!")
     file.close()
@@ -78,7 +78,7 @@ if __name__ == '__main__':
                     focusthickness=3,
                     focuscolor='none')
     style.map('TButton', background=[('active', "#AFEEEE")])
-    
+
     # Создание кнопки копирования всех файлов
     btCopyAll = ttk.Button(text = "Move all files", command=lambda: move_file(listPrivate, listPublic,2))
     btCopyAll.grid(row= 0,column = 1)
