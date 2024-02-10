@@ -2,12 +2,16 @@ import os
 import shutil
 from tkinter import *
 from tkinter import ttk
-def create_file(file_name):
+def create_file(entry, listPr):
     direct = "..//Private"
-    file = open(direct+"\\"+file_name, 'w+')
+    file_name = entry.get()
+    if file_name == "" or not set(".,:;!_*-+()/#¤%&)").isdisjoint(file_name): return 1
+    file = open(direct+"//"+file_name, 'w+')
     file.write("Hello World!!!!!!!!!!!!!!!!")
-    print(f"Файл {file_name} был успешно создан!")
     file.close()
+    update_file_list(listPr, "..//Private")
+    entry.delete(0, END)
+    listPr.selection_clear(0, END)
     return 0
 
 
@@ -18,6 +22,7 @@ def move_file(listPr, listPb, mode):
         for file in listPr.curselection():
             shutil.copy("..//Private//"+listPr.get(file), "..//Public")
     update_file_list(listPb, "..//Public")
+    listPr.selection_clear(0, END)
     return 0
 
 
@@ -62,6 +67,7 @@ if __name__ == '__main__':
     listPrivate.grid(row=1, column=0)
     update_file_list(listPrivate, dirPr)
 
+
     # Настройка стиля для кнопок
     style = ttk.Style()
     style.theme_use('alt')
@@ -74,44 +80,24 @@ if __name__ == '__main__':
     style.map('TButton', background=[('active', "#AFEEEE")])
     
     # Создание кнопки копирования всех файлов
-
     btCopyAll = ttk.Button(text = "Move all files", command=lambda: move_file(listPrivate, listPublic,2))
     btCopyAll.grid(row= 0,column = 1)
+    # Создание кнопки копирвоания выделенного файла
     btCopySelect = ttk.Button(text="Move selected files", command=lambda: move_file(listPrivate, listPublic, 1))
     btCopySelect.grid(row=1, column=1, sticky="n")
+
+    # Создание кнопки создания файла
+    btCreateFile = ttk.Button(text="Create file", command=lambda: create_file(entry, listPrivate))
+    btCreateFile.grid(row=5, column=1)
+    # Создание поля для ввода имени файла
+    entry = ttk.Entry(width = 25)
+    entry.grid(row = 3, column=1,ipadx=2, ipady=2 )
+    # Создание надписи к полю ввода имени
+    labelNewName = Label(text="File name", background="#66CDAA", font=("Arial", 11))
+    labelNewName.grid(row=4, column=1)
+
     mw.mainloop()
 
 
-    # columns = shutil.get_terminal_size().columns
-    # print("==========".center(columns))
-    # print("Добро пожаловать в программу для создания и копирования файлов!".center(columns))
-    # print("==========".center(columns))
-    # while True:
-    #     columns = shutil.get_terminal_size().columns
-    #
-    #     print("\n-----")
-    #     print("1. Создать файл\n2. Перенести файлы в общую папку\n0. Выйти из программы\n")
-    #     mode =input("Введите операцию: ")
-    #     print()
-    #     if mode == "1":
-    #         path = input("Введите имя файла: ")
-    #         create_file(path+".txt")
-    #     elif mode == "2":
-    #         files = os.listdir("..//Private")
-    #         i = 1
-    #
-    #         print("Список файлов:")
-    #         for file in files:
-    #
-    #             print(f"{i}. {file}")
-    #             i+=1
-    #         print("\n-----")
-    #         flag = input("Введите параметр переноса:\n1. Выбрать файл\n2. Перенести все\n")
-    #         move_file("test.txt", flag)
-    #     elif mode == "0":
-    #         break
-    #     else:
-    #         print("Некорректная операция!\n")
-    #         continue
 
 
