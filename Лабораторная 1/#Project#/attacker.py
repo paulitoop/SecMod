@@ -14,19 +14,19 @@ def timed_checker(status=None):
         init_scanning = False
         st_but["text"] = "Запустить\n сканнер"
     if init_scanning == True:
-        shutil.copytree("../Public", "../Intruder", dirs_exist_ok=True)
+        shutil.copytree("Public", "Intruder", dirs_exist_ok=True)
         public_listbox.after(1000, timed_checker)
     return 0
 
 
-def move_all():
-    shutil.copytree("../Public", "../Intruder", dirs_exist_ok = True)
-    return 0
+# def move_all():
+#     shutil.copytree("Public", "Intruder", dirs_exist_ok = True)
+#     return 0
 
 def update_file_list(listbox, directory_path):
     file_list = os.listdir(directory_path)
     listbox.delete(0, END)
-    for file in file_list:
+    for file in file_list:  
         listbox.insert(END, file)
     window.after(1000, update_file_list, listbox, directory_path)  # Проверяем каждую секунду
 
@@ -36,7 +36,7 @@ if __name__ == '__main__':
     window.title("Attacker's window")  
     window.geometry('700x300')
     window.configure(bg='#4B0082')
-    window.iconphoto(False, PhotoImage(file="anon.png"))
+    window.iconphoto(False, PhotoImage(file="#Project#/anon.png"))
     window.resizable(width=False, height=False)
 
     for i in range(3): window.columnconfigure(index=i, weight=1)
@@ -53,10 +53,10 @@ if __name__ == '__main__':
     public_listbox.grid(row=1, column=0, rowspan=6)
     intr_listbox = Listbox(yscrollcommand=True)
     intr_listbox.grid(row=1, column=2, rowspan=6)
-    update_file_list(public_listbox, "../Public")
-    update_file_list(intr_listbox, "../Intruder")
+    update_file_list(public_listbox, "Public")
+    update_file_list(intr_listbox, "Intruder")
 
-    ttk.Button(text="Перенести\n      все",command =move_all).grid(row=2, column=1, padx=2, pady=2)
+    #ttk.Button(text="Перенести\n      все",command =move_all).grid(row=2, column=1, padx=2, pady=2)
 
     st_but = ttk.Button(text="Запустить\n сканнер",\
                command =lambda: timed_checker("start"))
