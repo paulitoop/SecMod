@@ -6,7 +6,10 @@ def create_file(entry, listPr):
     direct = "..//Private"
     file_name = entry.get()
     file_content = entryContent.get()
-    if file_name == "" or not set(",:;!_*-+()/#¤%&)").isdisjoint(file_name) or file_name[0]=="." : return 1
+    if file_name == "" or not set(",:;!_*-+()/#¤%&)").isdisjoint(file_name) or file_name[0]=="." :
+        labelError.config(fg="#FF0000")
+        return 1
+    labelError.config(fg="#66CDAA")
     file = open(direct+"//"+file_name, 'w+')
     file.write(file_content)
     file.close()
@@ -100,6 +103,11 @@ if __name__ == '__main__':
     # Создание поля для ввода содержания
     entryContent = ttk.Entry(width = 25)
     entryContent.grid(row = 2, column=1,ipadx=2, ipady=2, sticky="n")
+
+     # Создание надписи при неправильном вводе имени файла
+    labelError = Label(text="Incorrect name", background="#66CDAA", foreground="#66CDAA", font=("Arial", 11))
+    #FF0000
+    labelError.grid(row=4, column=0)
 
     mw.mainloop()
 
