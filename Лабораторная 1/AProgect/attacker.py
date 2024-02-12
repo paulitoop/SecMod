@@ -7,6 +7,8 @@ init_scanning = False
 
 def timed_checker(status=None):
     global init_scanning
+
+
     if status == "start":
         init_scanning = True
         st_but["text"] = "Сканнер\nзапущен"
@@ -14,7 +16,15 @@ def timed_checker(status=None):
         init_scanning = False
         st_but["text"] = "Запустить\n сканнер"
     if init_scanning == True:
-        shutil.copytree("../Public", "../Intruder", dirs_exist_ok=True)
+        pub_list = os.listdir("../Public")
+        int_list = os.listdir("../Intruder")
+        pub_list_set=set(pub_list)
+        int_list_set=set(int_list)
+    
+        diff = pub_list_set.difference(int_list_set)
+        diff_list = list(diff)
+        for file in diff_list:
+            shutil.copy("..//Public//"+file, "..//Intruder")
         public_listbox.after(1000, timed_checker)
     return 0
 
