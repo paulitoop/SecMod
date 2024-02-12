@@ -5,12 +5,14 @@ from tkinter import ttk
 def create_file(entry, listPr):
     direct = "..//Private"
     file_name = entry.get()
+    file_content = entryContent.get()
     if file_name == "" or not set(",:;!_*-+()/#¤%&)").isdisjoint(file_name) or file_name[0]=="." : return 1
     file = open(direct+"//"+file_name, 'w+')
-    file.write("Hello World!!!!!!!!!!!!!!!!")
+    file.write(file_content)
     file.close()
     update_file_list(listPr, "..//Private")
     entry.delete(0, END)
+    entryContent.delete(0, END)
     listPr.selection_clear(0, END)
     return 0
 
@@ -93,8 +95,11 @@ if __name__ == '__main__':
     entry = ttk.Entry(width = 25)
     entry.grid(row = 3, column=1,ipadx=2, ipady=2 )
     # Создание надписи к полю ввода имени
-    labelNewName = Label(text="File name", background="#66CDAA", font=("Arial", 11))
+    labelNewName = Label(text="File content & File name", background="#66CDAA", font=("Arial", 11))
     labelNewName.grid(row=4, column=1)
+    # Создание поля для ввода содержания
+    entryContent = ttk.Entry(width = 25)
+    entryContent.grid(row = 2, column=1,ipadx=2, ipady=2, sticky="n")
 
     mw.mainloop()
 
