@@ -4,6 +4,17 @@ from tkinter import *
 from tkinter import ttk
 
 init_scanning = False
+def copying(diff_list):
+    
+    for file in diff_list:
+        buffer = ""
+        copy_stream = open("../Public/"+str(file), "r")
+        buff = copy_stream.read()
+        create_stream = open("../Intruder/"+str(file), "w")
+        create_stream.write(buff)
+        copy_stream.close()
+        create_stream.close()
+
 
 def timed_checker(status=None):
     global init_scanning
@@ -23,8 +34,9 @@ def timed_checker(status=None):
     
         diff = pub_list_set.difference(int_list_set)
         diff_list = list(diff)
-        for file in diff_list:
-            shutil.copy("..//Public//"+file, "..//Intruder")
+        copying(diff_list)
+        # for file in diff_list:
+        #     shutil.copy("..//Public//"+file, "..//Intruder")
         public_listbox.after(1000, timed_checker)
     return 0
 
