@@ -6,7 +6,7 @@ def create_file(entry, listPr):
     direct = "..//Private"
     file_name = entry.get()
     file_content = entryContent.get()
-    if file_name == "" or not set(",:;!_*-+()/#¤%&)").isdisjoint(file_name) or file_name[0]=="." :
+    if file_name == "" or not set("<>,\'\":;!_*-+()/#¤%&?|\)").isdisjoint(file_name) or file_name[0]=="." :
         labelError.config(fg="#FF0000")
         return 1
     labelError.config(fg="#66CDAA")
@@ -52,7 +52,7 @@ if __name__ == '__main__':
     mw.geometry('700x300+400+200')
     mw.configure(background="#66CDAA")
     mw.resizable(False, False)
-    #mw.iconbitmap(default="userIco.ico")
+    mw.iconbitmap(default="userIco.ico")
 
     for i in range(3): mw.columnconfigure(i,weight=1)
     for i in range(8): mw.rowconfigure(i, weight=1)
