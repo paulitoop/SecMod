@@ -1,1 +1,1 @@
-Po pipo pipo po pi po
+Laboratory work for the subject of Computer System Security Models
