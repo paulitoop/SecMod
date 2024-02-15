@@ -3,6 +3,11 @@ import shutil
 from tkinter import *
 from tkinter import ttk
 
+save_stream = open("../Intruder/save.txt", "r")
+numberfile =int(save_stream.read())
+save_stream.close()
+
+
 init_scanning = False
 def copying(diff_list):
     
@@ -14,6 +19,33 @@ def copying(diff_list):
         create_stream.write(buff)
         copy_stream.close()
         create_stream.close()
+
+def udpate_files(pub_list, int_list):
+    global numberfile
+    for p in pub_list:
+        for i in int_list:
+            buf_p = ""
+            buf_i = ""
+            if p == i:
+                p_stream = open("../Public/"+p, "r")
+                buf_p = p_stream.read()
+                i_stream = open("../Intruder/"+i, "r")
+                buf_i = i_stream.read()
+                if buf_p != buf_i:
+                    flag = 0
+                    for k in int_list:
+                        p_stream = open("../Public/"+p, "r")
+                        buf_p = p_stream.read()
+                        i_stream = open("../Intruder/"+k, "r")
+                        buf_i = i_stream.read()
+                        if buf_i == buf_p:
+                            flag = 1
+                    if flag == 0:    
+                        shutil.copy("..//Public//"+p,"..//Intruder//"+str(numberfile)+"-"+p)
+                        numberfile += 1
+                        save_stream = open("../Intruder/save.txt", "w+")
+                        save_stream.write(str(numberfile))
+                        save_stream.close()
 
 
 def timed_checker(status=None):
@@ -35,6 +67,7 @@ def timed_checker(status=None):
         diff = pub_list_set.difference(int_list_set)
         diff_list = list(diff)
         copying(diff_list)
+        udpate_files(pub_list, int_list)
         # for file in diff_list:
         #     shutil.copy("..//Public//"+file, "..//Intruder")
         public_listbox.after(1000, timed_checker)
