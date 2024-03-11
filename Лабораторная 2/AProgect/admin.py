@@ -21,7 +21,7 @@ def print_matrix(d):
     for s in d:
         if len(s)> maxs:
             maxs = len(s)
-
+    maxs = maxs +1
     matrix.insert (END, " "*maxs)
     for symb in alf:
         matrix.insert(END, symb+" ")
@@ -125,7 +125,7 @@ if __name__ == '__main__':
     tx1.grid(row = 3, column=0 ,rowspan=1,columnspan=1)
     entryLogin = Entry(width = 20)
     entryLogin.grid(row = 4, column=0 ,rowspan=1,columnspan=1)
-    tx2 = tk.Label(text="Новые права \n(для удаления введите ---)",height=2, width=20)
+    tx2 = tk.Label(text="Новые права\n (для удаления введите ---)",height=2, width=20)
     tx2.grid(row = 3, column=2 ,rowspan=1,columnspan=1)
     entryRoot = Entry(width = 20)
     entryRoot.grid(row =4, column=2,rowspan=1,columnspan=1)
