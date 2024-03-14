@@ -3,6 +3,7 @@ import shutil
 from tkinter import *
 import tkinter as tk
 import collections
+import tkinter.messagebox as mb
 
 def get_matrix(path):
     f = open(path)
@@ -21,7 +22,7 @@ def print_matrix(d):
     for s in d:
         if len(s)> maxs:
             maxs = len(s)
-
+    maxs = maxs +1
     matrix.insert (END, " "*maxs)
     al = []
     for i in d:
@@ -61,22 +62,38 @@ def update():
 def change_roots(u,r):
     m = get_matrix("matrix.txt")
     d = dict()
-    f = open("matrix.txt", 'w')
-    if m != 0:
-        d = set_dict(m)
-        print(d)
-        d[u] = set(sorted(r))
-        for users in d:
-            f.write(str(users)+"-")
-            for i in d[users]:
-                f.write(str(i))
-            [last] = collections.deque(d, maxlen=1)
-            if users != last:
-                f.write('\n')
-        f.close()
-        update()
-        
+    alf = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxwz0123456789"
+    if u!='' and r!='':
+        if r != "---":
+            for l in r:
+                if not(l in(alf)):
+                    mb.showerror("Ошибка", "Некорректные права доступа")
+                    return -1   
+        for name in u:
+            if not(name in(alf)):
+                mb.showerror("Ошибка", "Некорректное имя")
+                return -1
+        if m != 0:
+            f = open("matrix.txt", 'w')
+            d = set_dict(m)
+            print(d)
+            d[u] = set(sorted(r))
+            if r == "---":
+                d.pop(u)
+                mb.showinfo("Info", f"Пользователь {u} удален")
+            for users in d:
+                f.write(str(users)+"-")
+                for i in d[users]:
+                    f.write(str(i))
+                [last] = collections.deque(d, maxlen=1)
+                if users != last:
+                    f.write('\n')
+            f.close()
+            update()
+        else:
+            return -1
     else:
+        mb.showerror("Ошибка", "Некорректные данные")
         return -1
     return 0
 if __name__ == '__main__':
@@ -116,7 +133,7 @@ if __name__ == '__main__':
     tx1.grid(row = 3, column=0 ,rowspan=1,columnspan=1)
     entryLogin = Entry(width = 20)
     entryLogin.grid(row = 4, column=0 ,rowspan=1,columnspan=1)
-    tx2 = tk.Label(text="Новые права",height=2, width=20)
+    tx2 = tk.Label(text="Новые права\n (для удаления введите ---)",height=2, width=20)
     tx2.grid(row = 3, column=2 ,rowspan=1,columnspan=1)
     entryRoot = Entry(width = 20)
     entryRoot.grid(row =4, column=2,rowspan=1,columnspan=1)
