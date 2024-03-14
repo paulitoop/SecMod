@@ -16,20 +16,28 @@ def get_matrix(path):
 def print_matrix(d):
     matrix.delete("1.0", END)
     alf = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxwz0123456789"
+
     maxs = 0
     for s in d:
         if len(s)> maxs:
             maxs = len(s)
 
     matrix.insert (END, " "*maxs)
-    for symb in alf:
+    al = []
+    for i in d:
+        for s in d[i]:
+            if s in alf:
+                al.append(s)
+    al = sorted(set(al))
+    for symb in al:
         matrix.insert(END, symb+" ")
+
     matrix.insert(END, "\n")
     for users in d:
         matrix.insert(END, users)
         if len(users)< maxs:
             matrix.insert(END, " "*(maxs-len(users)))
-        for i in alf:
+        for i in al:
             if i in d[users]:
                 matrix.insert(END, "+ ")
             else:
