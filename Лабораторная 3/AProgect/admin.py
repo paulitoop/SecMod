@@ -140,6 +140,8 @@ def add_roots(u_i,r):
 def spl_user_create(u, r):
     if r == "---":
         return -1
+    if r == "":
+        r = " "
     for us in u.split('-'):
         if add_roots(us, r)!=0:
             return -1
