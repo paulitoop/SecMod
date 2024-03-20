@@ -140,6 +140,8 @@ def add_roots(u_i,r):
 def create(u, r):
     if r == "---":
         return -1
+    if r == "":
+        r = " "
     for us in u.split('-'):
         if add_roots(us, r)!=0:
             return -1
@@ -370,7 +372,7 @@ if __name__ == '__main__':
     tx1.grid(row = 3, column=0 ,rowspan=1,columnspan=1)
     entryLogin = Entry(width = 20)
     entryLogin.grid(row = 4, column=0 ,rowspan=1,columnspan=1)
-    tx2 = tk.Label(text="Права",height=2, width=20)
+    tx2 = tk.Label(text="Права (---) для всех",height=2, width=20)
     tx2.grid(row = 3, column=2 ,rowspan=1,columnspan=1)
     entryRoot = Entry(width = 20)
     entryRoot.grid(row =4, column=2,rowspan=1,columnspan=1)
