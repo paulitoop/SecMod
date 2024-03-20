@@ -60,9 +60,30 @@ def update():
         print_matrix(d)
     return 0
 
-def spl_user_roots(u, r):
+#Многопользовательность
+def spl_user_addroots(u, r):
+    m = get_matrix("matrix.txt")
+    if m =='':
+        return -1
+    d = set_dict(m)
+    maxr = ""
+    alf = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxwz0123456789 "
+    if r == "---":
+        for sym in alf:
+            f = 0
+            for i in d:
+                if sym in d[i]:
+                    f = 1
+            if f == 1:
+                maxr+= sym
+        r = maxr
+        print(r)        
     for us in u.split('-'):
-        add_roots(us, r)
+        if not(us in d):
+            mb.showerror("Ошибка", "Некорректный пользователь")
+            return -1
+        if add_roots(us, r)!=0:
+            return -1
     return 0
 #Добавить права набору юзеров
 def add_roots(u_i,r):
@@ -114,57 +135,63 @@ def add_roots(u_i,r):
         mb.showerror("Ошибка", "Некорректные данные")
         return -1
     return 0
-def change_roots(u,r):
+
+#Многопользовательность
+def spl_user_create(u, r):
+    if r == "---":
+        return -1
+    for us in u.split('-'):
+        if add_roots(us, r)!=0:
+            return -1
+    return 0
+
+def spl_user_remroots(u,r):
+    for us in u.split('-'):
+        if rem_roots(us, r)!=0:
+            return -1
+    return 0
+
+def rem_roots(u_i,r):
     m = get_matrix("matrix.txt")
     d = dict()
     alf = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxwz0123456789 "
-    u_n = list(u.split("-"))
-    
-    for u_i in u_n:
-        print(u_i)
-        if u_i!= '' and r!='':
-            if r != "---":
-                for l in r:
-                    if not(l in(alf)):
-                        mb.showerror("Ошибка", "Некорректные права доступа")
-                        return -1   
-            for name in u_i:
-                if not(name in(alf)):
-                    mb.showerror("Ошибка", "Некорректное имя")
-                    return -1
-            if m != 0:
-                f = open("matrix.txt", 'w')
-                d = set_dict(m)
-                print(d)
-                if u_i not in d:
-                    d[u_i] = set(sorted(r))
-                else:
-                    new_acces = []
-                    for i in d[u_i]:
-                        if i not in r:
-                            new_acces.append(i)
-                    for i in r:
-                        if i not in d[u_i]:
-                            new_acces.append(i)
-                    d[u_i] = set(sorted(new_acces))
-                if r == "---":
-                    d[u_i] = " " 
-                    mb.showinfo("Info", f"Права пользователей {u} удалены")
-                for users in d:
-                    f.write(str(users)+"-")
-                    for i in d[users]:
-                        f.write(str(i))
-                    [last] = collections.deque(d, maxlen=1)
-                    if users != last:
-                        f.write('\n')
-                f.close()
-                update()
-            else:
+    if u_i!= '' and r!='':
+        if r == "---":
+            d[u_i] = " " 
+            mb.showinfo("Info", f"Права пользователя {u_i} удалены")
+        for name in u_i:
+            if not(name in(alf)):
+                mb.showerror("Ошибка", "Некорректное имя")
                 return -1
+        if m != 0:
+            f = open("matrix.txt", 'w')
+            d = set_dict(m)
+                
+            if not u_i in d:
+                mb.showerror("Ошибка", "Такого пользователя нет")
+                return -1
+            
+            new_acces = []
+            for i in d[u_i]:
+                if i not in r and r != '---':
+                    new_acces.append(i)
+            
+            d[u_i] = set(sorted(new_acces))  
+                
+            for users in d:
+                f.write(str(users)+"-")
+                for i in d[users]:
+                    f.write(str(i))
+                [last] = collections.deque(d, maxlen=1)
+                if users != last:
+                    f.write('\n')
+            f.close()
+            update()
         else:
-            mb.showerror("Ошибка", "Некорректные данные")
             return -1
-        update()
+    else:
+        mb.showerror("Ошибка", "Некорректные данные")
+        return -1
     return 0
 
 def changeObj(ob1, ob2):
@@ -318,21 +345,26 @@ if __name__ == '__main__':
     matrix['yscrollcommand'] = scrollby.set    
 
     update()
-    addBtn = tk.Button(text = "GRAND",height=1, width=20, command=lambda: spl_user_roots(entryLogin.get(), entryRoot.get()))
-    addBtn.grid(row =4, column=1, columnspan= 1, rowspan=1)
+    grandBtn = tk.Button(text = "GRAND",height=1, width=20, command=lambda: spl_user_addroots(entryLogin.get(), entryRoot.get()))
+    grandBtn.grid(row =4, column=1, columnspan= 1, rowspan=1)
     
+    createBtn = tk.Button(text = "CREATE",height=1, width=20, command=lambda: spl_user_create(entryLogin.get(), entryRoot.get()))
+    createBtn.grid(row =5, column=1, columnspan= 1, rowspan=1)
+
+    addBtn = tk.Button(text = "REMOVE",height=1, width=20, command=lambda: spl_user_remroots(entryLogin.get(), entryRoot.get()))
+    addBtn.grid(row =6, column=1, columnspan= 1, rowspan=1)
     #Кнопки редактирования объектов и субъектов
     changeObjBtn = tk.Button(text = "Изменить объект",height=1, width=20, command=lambda: changeObj(entryLogin.get(), entryRoot.get()))
-    changeObjBtn.grid(row =5, column=1, columnspan= 1, rowspan=1)
+    changeObjBtn.grid(row =7, column=1, columnspan= 1, rowspan=1)
 
     DelObjBtn = tk.Button(text = "Удалить объект",height=1, width=20, command=lambda: delObj(entryLogin.get()))
-    DelObjBtn.grid(row =6, column=1, columnspan= 1, rowspan=1)
+    DelObjBtn.grid(row =8, column=1, columnspan= 1, rowspan=1)
 
     changeSubjBtn = tk.Button(text = "Изменить субъект",height=1, width=20, command=lambda: changeSub(entryLogin.get(), entryRoot.get()))
-    changeSubjBtn.grid(row =7, column=1, columnspan= 1, rowspan=1)
+    changeSubjBtn.grid(row =9, column=1, columnspan= 1, rowspan=1)
 
     DelSubjBtn = tk.Button(text = "Удалить субъект",height=1, width=20, command=lambda: delSub(entryLogin.get()))
-    DelSubjBtn.grid(row =8, column=1, columnspan= 1, rowspan=1)
+    DelSubjBtn.grid(row =10, column=1, columnspan= 1, rowspan=1)
 
     tx1 = tk.Label(text="Usernames split -",height=2, width=20)
     tx1.grid(row = 3, column=0 ,rowspan=1,columnspan=1)
