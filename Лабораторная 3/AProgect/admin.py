@@ -61,7 +61,7 @@ def update():
     return 0
 
 #Многопользовательность
-def spl_user_addroots(u, r):
+def grand(u, r):
     m = get_matrix("matrix.txt")
     if m =='':
         return -1
@@ -99,7 +99,7 @@ def add_roots(u_i,r):
                     return -1   
         else:
             d[u_i] = " " 
-            mb.showinfo("Info", f"Права пользователей {u} удалены")
+            mb.showinfo("Info", f"Права пользователей {u_i} удалены")
         print(u_i)
         for name in u_i:
             if not(name in(alf)):
@@ -137,7 +137,7 @@ def add_roots(u_i,r):
     return 0
 
 #Многопользовательность
-def spl_user_create(u, r):
+def create(u, r):
     if r == "---":
         return -1
     for us in u.split('-'):
@@ -145,7 +145,7 @@ def spl_user_create(u, r):
             return -1
     return 0
 
-def spl_user_remroots(u,r):
+def remove(u,r):
     for us in u.split('-'):
         if rem_roots(us, r)!=0:
             return -1
@@ -345,13 +345,13 @@ if __name__ == '__main__':
     matrix['yscrollcommand'] = scrollby.set    
 
     update()
-    grandBtn = tk.Button(text = "GRAND",height=1, width=20, command=lambda: spl_user_addroots(entryLogin.get(), entryRoot.get()))
+    grandBtn = tk.Button(text = "GRAND",height=1, width=20, command=lambda: grand(entryLogin.get(), entryRoot.get()))
     grandBtn.grid(row =4, column=1, columnspan= 1, rowspan=1)
     
-    createBtn = tk.Button(text = "CREATE",height=1, width=20, command=lambda: spl_user_create(entryLogin.get(), entryRoot.get()))
+    createBtn = tk.Button(text = "CREATE",height=1, width=20, command=lambda: create(entryLogin.get(), entryRoot.get()))
     createBtn.grid(row =5, column=1, columnspan= 1, rowspan=1)
 
-    addBtn = tk.Button(text = "REMOVE",height=1, width=20, command=lambda: spl_user_remroots(entryLogin.get(), entryRoot.get()))
+    addBtn = tk.Button(text = "REMOVE",height=1, width=20, command=lambda: remove(entryLogin.get(), entryRoot.get()))
     addBtn.grid(row =6, column=1, columnspan= 1, rowspan=1)
     #Кнопки редактирования объектов и субъектов
     changeObjBtn = tk.Button(text = "Изменить объект",height=1, width=20, command=lambda: changeObj(entryLogin.get(), entryRoot.get()))
