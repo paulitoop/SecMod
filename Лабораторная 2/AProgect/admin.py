@@ -16,18 +16,18 @@ def get_matrix(path):
 
 def print_matrix(d):
     matrix.delete("1.0", END)
-    alf = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxwz0123456789"
+    alf = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxwz0123456789 "
 
     maxs = 0
     for s in d:
         if len(s)> maxs:
             maxs = len(s)
-    maxs = maxs +1
+
     matrix.insert (END, " "*maxs)
     al = []
     for i in d:
         for s in d[i]:
-            if s in alf:
+            if s in alf and s != " ":
                 al.append(s)
     al = sorted(set(al))
     for symb in al:
@@ -44,6 +44,7 @@ def print_matrix(d):
             else:
                 matrix.insert(END, "- ")
         matrix.insert(END, "\n")
+  
             
 def set_dict(m):
     d = dict()
@@ -62,7 +63,7 @@ def update():
 def change_roots(u,r):
     m = get_matrix("matrix.txt")
     d = dict()
-    alf = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxwz0123456789"
+    alf = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxwz0123456789 "
     if u!='' and r!='':
         if r != "---":
             for l in r:
@@ -77,10 +78,20 @@ def change_roots(u,r):
             f = open("matrix.txt", 'w')
             d = set_dict(m)
             print(d)
-            d[u] = set(sorted(r))
+            if u not in d:
+                d[u] = set(sorted(r))
+            else:
+                new_acces = []
+                for i in d[u]:
+                    if i not in r:
+                        new_acces.append(i)
+                for i in r:
+                    if i not in d[u]:
+                        new_acces.append(i)
+                d[u] = set(sorted(new_acces))
             if r == "---":
-                d.pop(u)
-                mb.showinfo("Info", f"Пользователь {u} удален")
+                d[u] = " " 
+                mb.showinfo("Info", f"Права пользователя {u} удалены")
             for users in d:
                 f.write(str(users)+"-")
                 for i in d[users]:
@@ -96,6 +107,128 @@ def change_roots(u,r):
         mb.showerror("Ошибка", "Некорректные данные")
         return -1
     return 0
+
+def changeObj(ob1, ob2):
+    m = get_matrix("matrix.txt")
+    d = dict()
+    d = set_dict(m)
+    alf = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxwz0123456789 "
+    if ob2 not in alf:
+        mb.showerror("Ошибка","Недопустимое новое имя объекта")
+        return -1
+    f=0 
+    for user in d:
+        if ob2 in d[user]:
+            mb.showerror("Ошибка","Имя объекта занято")
+            return 0
+    
+    for user in d:
+        s= []
+        for i in d[user]:
+            if i == ob1:
+                s.append(ob2)
+            else:
+                s.append(i)
+        d[user] = s
+    f = open("matrix.txt", 'w')
+    for users in d:
+        f.write(str(users)+"-")
+        for i in d[users]:
+            f.write(str(i))
+        [last] = collections.deque(d, maxlen=1)
+        if users != last:
+            f.write('\n')
+    f.close()
+    update()
+    return 1
+
+def delObj(ob1):
+    m = get_matrix("matrix.txt")
+    d = dict()
+    d = set_dict(m)
+    alf = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxwz0123456789 "
+    if ob1 not in alf:
+        mb.showerror("Ошибка","Недопустимое имя объекта")
+        return -1
+    for user in d:
+        st = []
+        for s in d[user]:
+            if s != ob1:
+                st.append(s)
+            d[user] = st
+
+    f = open("matrix.txt", 'w')
+    for users in d:
+        f.write(str(users)+"-")
+        for i in d[users]:
+            f.write(str(i))
+        [last] = collections.deque(d, maxlen=1)
+        if users != last:
+            f.write('\n')
+    f.close()
+    update()
+    return 1
+
+def changeSub(ob1, ob2):
+    m = get_matrix("matrix.txt")
+    d = dict()
+    d = set_dict(m)
+    alf = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxwz0123456789 "
+    if not set("<>,\'\":;!_.*-+()/#¤%&?|\)").isdisjoint(ob2):
+        mb.showerror("Ошибка", "Некорректное имя пользователя")
+        return -1
+    f=0 
+
+    if ob2 in d:
+        mb.showerror("Ошибка","Имя субъекта занято")
+        return 0
+    
+    if ob1 in d:
+        st = d[ob1]
+        d.pop(ob1)
+        d[ob2] = st
+       
+    f = open("matrix.txt", 'w')
+    for users in d:
+        f.write(str(users)+"-")
+        for i in d[users]:
+            f.write(str(i))
+        [last] = collections.deque(d, maxlen=1)
+        if users != last:
+            f.write('\n')
+    f.close()
+    update()
+    return 1
+
+def delSub(ob1):
+    m = get_matrix("matrix.txt")
+    d = dict()
+    d = set_dict(m)
+    alf = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxwz0123456789 "
+    if not set("<>,\'\":;!_.*-+()/#¤%&?|\)").isdisjoint(ob1):
+        mb.showerror("Ошибка", "Некорректное имя пользователя")
+        return -1
+    f=0 
+
+    if ob1 not in d:
+        mb.showerror("Ошибка","Такого нет")
+        return 0
+    
+    d.pop(ob1)
+       
+    f = open("matrix.txt", 'w')
+    for users in d:
+        f.write(str(users)+"-")
+        for i in d[users]:
+            f.write(str(i))
+        [last] = collections.deque(d, maxlen=1)
+        if users != last:
+            f.write('\n')
+    f.close()
+    update()
+    return 1
+
+
 if __name__ == '__main__':
     
     window = Tk()  
@@ -128,6 +261,19 @@ if __name__ == '__main__':
     update()
     addBtn = tk.Button(text = "Изменить права",height=1, width=20, command=lambda: change_roots(entryLogin.get(), entryRoot.get()))
     addBtn.grid(row =4, column=1, columnspan= 1, rowspan=1)
+
+    #Кнопки редактирования объектов и субъектов
+    changeObjBtn = tk.Button(text = "Изменить объект",height=1, width=20, command=lambda: changeObj(entryLogin.get(), entryRoot.get()))
+    changeObjBtn.grid(row =5, column=1, columnspan= 1, rowspan=1)
+
+    DelObjBtn = tk.Button(text = "Удалить объект",height=1, width=20, command=lambda: delObj(entryLogin.get()))
+    DelObjBtn.grid(row =6, column=1, columnspan= 1, rowspan=1)
+
+    changeSubjBtn = tk.Button(text = "Изменить субъект",height=1, width=20, command=lambda: changeSub(entryLogin.get(), entryRoot.get()))
+    changeSubjBtn.grid(row =7, column=1, columnspan= 1, rowspan=1)
+
+    DelSubjBtn = tk.Button(text = "Удалить субъект",height=1, width=20, command=lambda: delSub(entryLogin.get()))
+    DelSubjBtn.grid(row =8, column=1, columnspan= 1, rowspan=1)
 
     tx1 = tk.Label(text="Имя пользователя",height=2, width=20)
     tx1.grid(row = 3, column=0 ,rowspan=1,columnspan=1)
