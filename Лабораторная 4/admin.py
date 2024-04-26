@@ -2,8 +2,11 @@ from tkinter import *
 import tkinter as tk
 from tkinter import simpledialog
 from tkinter import messagebox
+import os
 
 
+
+curr_path = ""
 def empty():
     print("Hello world!")
     matrix.config(state=NORMAL)
@@ -15,6 +18,10 @@ class SecurityManager:
     def __init__(self):
         self.security_levels = {}  # Словарь для хранения уровней секретности
         SecurityManager.read_levels(self)
+        if 'public' not in self.security_levels:
+            self.security_levels['public'] = 1
+            SecurityManager.write_levels(self)
+        
 
     def create_security_level(self, name, level):
         if name not in self.security_levels:
@@ -86,52 +93,143 @@ class SecurityManager:
                 self.security_levels[name] = level
     
     def show_levels(self):
-        matrix.config(state=NORMAL)
-        matrix.delete("1.0", END)
+        ListLevels.config(state=NORMAL)
+        ListLevels.delete("1.0", END)
         for name, level in self.security_levels.items():
-            matrix.insert(END, f"{name}:{level}\n")
-        matrix.config(state=DISABLED)
+            ListLevels.insert(END, f"{name} : {level}\n")
+        ListLevels.config(state=DISABLED)
+
+
+class FolderManager:
+    
+    def __init__(self, ListFiles):
+        global curr_path
+        self.rootDir = FolderManager.get_root_dir(self)
+        self.folder_levels = {}
+        self.listbox = ListFiles
+        curr_path = self.rootDir
+        FolderManager.show_files(self, self.rootDir, self.listbox)
+
+    def show_files(self, path, listbox):
+        folders_files = []
+        listbox.delete(0, tk.END)
+        for name in os.listdir(path):
+            rel_path = os.path.relpath(os.path.join(path, name), path)
+            folders_files.append(rel_path)
+        for item in folders_files:
+            listbox.insert(tk.END, item)
+
+    def get_root_dir(self):
+        current_file = os.path.abspath(__file__)
+        root_dir = os.path.dirname(current_file)
+        return root_dir
+
+    def go_back(self):
+        global curr_path
+        #current_path = folder_manager.current_path
+        if curr_path == self.rootDir:  # Если текущий путь - корневая директория
+            messagebox.showinfo("Информация", "Вы уже в корневой директории.")
+            return -1
+        parent_path = os.path.dirname(curr_path)  # Получаем путь к родительской директории
+        curr_path = parent_path
+        spl = curr_path.split("Лабораторная 4")
+        print(spl)
+        if spl[1]=="":
+            spl[1]="\\"
+        LabelPath["text"] = spl[1]
+        folder_manager.show_files(parent_path, ListFiles)
+
+def on_double_click( event):
+    global curr_path
+    root_dir = folder_manager.get_root_dir()
+    selection = ListFiles.curselection()  # Получаем индекс выбранного элемента
+    if selection:  # Если есть выбранный элемент
+        index = selection[0]  # Получаем первый выбранный индекс (если множественный выбор)
+        folder_name = ListFiles.get(index)  # Получаем текст элемента (имя папки)
+        full_path = os.path.join(curr_path, folder_name)
+        if not os.path.isdir(full_path):  # Проверяем, является ли путь папкой
+            messagebox.showerror("Ошибка", "Выбранный элемент не явялется папкой.")
+            return -1
+        print("Полный путь к выбранной папке:", full_path)
+        curr_path= full_path
+    spl = full_path.split("Лабораторная 4")
+    print(spl)
+    LabelPath["text"] = spl[1]
+    folder_manager.show_files(full_path, ListFiles)
+
+
 
 
 if __name__=="__main__":
     sec_manager = SecurityManager()
-
+    
     window = Tk()
     window.title("Панель управления")
-    window.geometry('800x600')
+    window.geometry('600x500')
     window.resizable(False, False)
     window.configure(background="#b2b6db")
   
 
-    for i in range(8): window.columnconfigure(index=i,weight=1)
+    for i in range(2): window.columnconfigure(index=i,weight=1)
     for i in range(4): window.rowconfigure(index=i, weight=1)
+
+    
 
     #Уровни секретности
     CreateLevel = Button(window, text = 'Создать уровень\nсекретности', command = lambda:sec_manager.security_level_dialog("Создать"))
-    CreateLevel.grid(row = 0, column = 0)
+    CreateLevel.place(x=10,y=10,width=126,height=35)
     ChangeLevel = Button(window, text = 'Изменить уровень\nсекретности', command = lambda:sec_manager.security_level_dialog("Изменить"))
-    ChangeLevel.grid(row = 1, column = 0)
+    ChangeLevel.place(x=10,y=60,width=126,height=35)
     DelLevel = Button(window, text = 'Удалить уровень\nсекретности', command = lambda:sec_manager.security_level_dialog("Удалить"))
-    DelLevel.grid(row = 2, column =0)
-    ShowLevels = Button(window, text = 'Показать уровни\nсекретности', command = lambda:sec_manager.show_levels())
-    ShowLevels.grid(row = 3, column =0)
+    DelLevel.place(x=10, y = 110,width=126,height=35)
+    
 
     #Папки мамки
     CreateFolder = Button(window, text = 'Создать папку', command = lambda:empty())
-    CreateFolder.grid(row = 0, column = 1)
+    CreateFolder.place(x=460,y=10,width=126,height=35)
     ChangeFolder = Button(window, text = 'Изменить уровень\nпапки', command = lambda:empty())
-    ChangeFolder.grid(row = 1, column = 1)
+    ChangeFolder.place(x=460,y=60,width=126,height=35)
     DelFolder = Button(window, text = 'Удалить папку', command = lambda:empty())
-    DelFolder.grid(row = 2, column =1)
+    DelFolder.place(x=460,y=110,width=126,height=35)
 
     #Копирование папок
     CopyFolder = Button(window, text = 'Копировать файлы', command = lambda:empty())
-    CopyFolder.grid(row = 1, column = 2)
+    CopyFolder.place(x=240,y=10,width=126,height=35)
 
-    #Вывод инфы
-    matrix = tk.Text(borderwidth=3, relief="sunken",height=10, width=60)
-    matrix.config(font=("consolas", 12), undo=True, wrap=NONE,state=DISABLED)
-    matrix.grid(row=3, column=1, padx=1, pady=1)
+    BackButton = Button(window, text = 'Назад', command = lambda:folder_manager.go_back())
+    BackButton.place(x=240,y=60,width=126,height=35)
 
+    #Дирректории
+    ListFiles = tk.Listbox(window)
+    ListFiles.config(font=("consolas", 12))
+    ListFiles.place(x=10,y=190,width=570,height=111)
+    ListFiles.bind("<Double-Button-1>", on_double_click)
+
+    #Уровни доступа
+    ListLevels=Text(window)
+    ListLevels.place(x=10,y=330,width=242,height=151)
+
+    #Урвони папок
+    FilesLevels=Text(window)
+    FilesLevels.place(x=340,y=330,width=242,height=151)
+
+    LabelLevels=tk.Label(window, bg="#b2b6db")
+    LabelLevels["text"] = "Уровни доступа"
+    LabelLevels.place(x=80,y=300,width=114,height=30)
+
+    LabelLevelFolders=tk.Label(window, bg="#b2b6db")
+    LabelLevelFolders["text"] = "Уровни папок"
+    LabelLevelFolders.place(x=410,y=300,width=116,height=30)
+
+    LabelFileSystem=tk.Label(window, bg="#b2b6db")
+    LabelFileSystem["text"] = "Файловая система"
+    LabelFileSystem.place(x=10,y=160,width=119,height=30)
+
+    LabelPath=tk.Label(window, bg="#b2b6db")
+    LabelPath["text"] = "\\"
     
+    LabelPath.place(x=240,y=160,width=342,height=30)
+
+    folder_manager = FolderManager(ListFiles)
+    sec_manager.show_levels()
     mainloop()
