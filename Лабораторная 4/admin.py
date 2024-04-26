@@ -84,6 +84,9 @@ class SecurityManager:
                 file.write(f"{name}:{level}\n")
 
     def read_levels(self):
+        if not os.path.exists("levels.txt"):
+            file = open("levels.txt", "w")
+            file.close()
         with open("levels.txt", "r") as file:
             for line in file:
                 parts = line.strip().split(":")
@@ -210,6 +213,10 @@ class FolderManager:
         folder_manager.show_files(parent_path, ListFiles)
 
     def fill_folder_levels(root_dir, levels_file):
+        if not os.path.exists("folder_levels.txt"):
+            file = open("folder_levels.txt", "w")
+            file.close()
+
         if os.path.getsize(levels_file) > 0:
             print("Файл folder_levels.txt уже содержит данные.")
             return
