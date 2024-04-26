@@ -16,7 +16,7 @@ def get_matrix(path):
 
 def print_matrix(d):
     matrix.delete("1.0", END)
-    alf = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxwz0123456789 "
+    alf = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxwz0123456789# "
 
     maxs = 0
     for s in d:
@@ -35,6 +35,8 @@ def print_matrix(d):
 
     matrix.insert(END, "\n")
     for users in d:
+        if users == '#':
+            continue
         matrix.insert(END, users)
         if len(users)< maxs:
             matrix.insert(END, " "*(maxs-len(users)))
@@ -62,12 +64,16 @@ def update():
 
 #Многопользовательность
 def grand(u, r):
+    if "#" in u:
+        mb.showerror("Ошибка", "Некорректный пользователь")
+        return -1
+    u+="-#"
     m = get_matrix("matrix.txt")
     if m =='':
         return -1
     d = set_dict(m)
     maxr = ""
-    alf = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxwz0123456789 "
+    alf = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxwz0123456789# "
     if r == "---":
         for sym in alf:
             f = 0
@@ -89,7 +95,7 @@ def grand(u, r):
 def add_roots(u_i,r):
     m = get_matrix("matrix.txt")
     d = dict()
-    alf = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxwz0123456789 "
+    alf = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxwz0123456789# "
     
     if u_i!= '' and r!='':
         if r != "---":
@@ -156,7 +162,7 @@ def remove(u,r):
 def rem_roots(u_i,r):
     m = get_matrix("matrix.txt")
     d = dict()
-    alf = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxwz0123456789 "
+    alf = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxwz0123456789# "
     if u_i!= '' and r!='':
         if r == "---":
             d[u_i] = " " 
@@ -200,7 +206,7 @@ def changeObj(ob1, ob2):
     m = get_matrix("matrix.txt")
     d = dict()
     d = set_dict(m)
-    alf = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxwz0123456789 "
+    alf = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxwz0123456789# "
     if ob2 not in alf:
         mb.showerror("Ошибка","Недопустимое новое имя объекта")
         return -1
@@ -234,7 +240,7 @@ def delObj(ob1):
     m = get_matrix("matrix.txt")
     d = dict()
     d = set_dict(m)
-    alf = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxwz0123456789 "
+    alf = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxwz0123456789# "
     if ob1 not in alf:
         mb.showerror("Ошибка","Недопустимое имя объекта")
         return -1
@@ -261,8 +267,8 @@ def changeSub(ob1, ob2):
     m = get_matrix("matrix.txt")
     d = dict()
     d = set_dict(m)
-    alf = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxwz0123456789 "
-    if not set("<>,\'\":;!_.*-+()/#¤%&?|\)").isdisjoint(ob2):
+    alf = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxwz0123456789# "
+    if not set("<>,\'\":;!_.*-+()/¤%&?|\)").isdisjoint(ob2):
         mb.showerror("Ошибка", "Некорректное имя пользователя")
         return -1
     f=0 
@@ -292,8 +298,8 @@ def delSub(ob1):
     m = get_matrix("matrix.txt")
     d = dict()
     d = set_dict(m)
-    alf = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxwz0123456789 "
-    if not set("<>,\'\":;!_.*-+()/#¤%&?|\)").isdisjoint(ob1):
+    alf = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxwz0123456789# "
+    if not set("<>,\'\":;!_.*-+()/¤%&?|\)").isdisjoint(ob1):
         mb.showerror("Ошибка", "Некорректное имя пользователя")
         return -1
     f=0 
