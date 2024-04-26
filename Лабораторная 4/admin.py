@@ -110,6 +110,30 @@ class FolderManager:
         self.listbox = ListFiles
         curr_path = self.rootDir
         FolderManager.show_files(self, self.rootDir, self.listbox)
+        FolderManager.fill_folder_levels(self.rootDir, "folder_levels.txt")
+        FolderManager.read_security_levels(self)
+        FolderManager.show_levels(self)
+
+
+    def read_security_levels(self):
+        with open("folder_levels.txt", "r") as file:
+            for line in file:
+                parts = line.strip().split(":")
+                name = parts[0]
+                level = int(parts[1])
+                self.folder_levels[name] = level
+
+    def write_security_levels(self):
+        with open("folder_levels.txt", "w") as file:
+            for name, level in self.folder_levels.items():
+                file.write(f"{name}:{level}\n")
+
+    def show_levels(self):
+        FilesLevels.config(state=NORMAL)
+        FilesLevels.delete("1.0", END)
+        for name, level in self.folder_levels.items():
+            FilesLevels.insert(END, f"{name} : {level}\n")
+        FilesLevels.config(state=DISABLED)
 
     def create_new_folder(self,name, level):
         global curr_path
@@ -170,6 +194,20 @@ class FolderManager:
             spl[1]="\\"
         LabelPath["text"] = spl[1]
         folder_manager.show_files(parent_path, ListFiles)
+
+    def fill_folder_levels(root_dir, levels_file):
+        if os.path.getsize(levels_file) > 0:
+            print("Файл folder_levels.txt уже содержит данные.")
+            return
+        with open(levels_file, 'w') as f:
+            for root, dirs, files in os.walk(root_dir):
+                # rel_path = os.path.relpath(root, root_dir)
+                # f.write(f"{rel_path}:1\n")
+                for dir_name in dirs:
+                    dir_path = os.path.join(root, dir_name)
+                    rel_dir_path = os.path.relpath(dir_path, root_dir)
+                    f.write(f"{rel_dir_path}:1\n")
+        print("Данные успешно записаны в файл folder_levels.txt.")
 
 def on_double_click( event):
     global curr_path
