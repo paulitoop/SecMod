@@ -106,9 +106,41 @@ class FolderManager:
         global curr_path
         self.rootDir = FolderManager.get_root_dir(self)
         self.folder_levels = {}
+        self.security_levels = {}
         self.listbox = ListFiles
         curr_path = self.rootDir
         FolderManager.show_files(self, self.rootDir, self.listbox)
+
+    def create_new_folder(self,name, level):
+        global curr_path
+        new_folder_path = os.path.join(curr_path, name)  # Полный путь к новой папке
+        try:
+            os.mkdir(new_folder_path)  # Создаем новую папку
+            messagebox.showinfo("Уведомление", f"Папка '{name}' с уровнем {level} успешно создана")
+            FolderManager.show_files(self, curr_path, self.listbox)
+            return 0
+        except OSError as e:
+            messagebox.showerror("Ошибка", f"Ошибка при создании папки '{name}' в директории '{curr_path}': {e}")
+            return None
+    
+    def create_folder_dialog(self):
+        name = simpledialog.askstring("Новая папка", "Введите название папки:", parent=window)
+        if FolderManager.validate_name(self, name):
+            level = simpledialog.askinteger("Уровень секретности", "Выберите уровень секретности (от 1 до 15):",initialvalue=1, minvalue=1, maxvalue=15,parent=window)
+            if level: 
+                FolderManager.create_new_folder(self,name, level)
+
+
+    def validate_name(self, name):
+        if name in self.security_levels:
+            messagebox.showerror("Ошибка", "Уровень секретности с таким именем занят")
+            return False
+        elif name and all(c.isalnum() or c == '_' for c in name):
+            return True
+        else:
+            messagebox.showerror("Ошибка", "Имя уровня секретности папки должно содержать только буквы, цифры и подчеркивания.")
+            return False
+
 
     def show_files(self, path, listbox):
         folders_files = []
@@ -185,7 +217,7 @@ if __name__=="__main__":
     
 
     #Папки мамки
-    CreateFolder = Button(window, text = 'Создать папку', command = lambda:empty())
+    CreateFolder = Button(window, text = 'Создать папку', command = lambda:folder_manager.create_folder_dialog())
     CreateFolder.place(x=460,y=10,width=126,height=35)
     ChangeFolder = Button(window, text = 'Изменить уровень\nпапки', command = lambda:empty())
     ChangeFolder.place(x=460,y=60,width=126,height=35)
