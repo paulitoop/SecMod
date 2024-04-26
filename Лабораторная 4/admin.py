@@ -42,7 +42,6 @@ class SecurityManager:
     
     def del_security_level(self,name):
         if name in self.security_levels:
-            
             del self.security_levels[name]
             SecurityManager.write_levels(self)
             messagebox.showinfo("Уведомление", f"Уровень секретности '{name}' удален успешно.")
@@ -147,12 +146,27 @@ class FolderManager:
             messagebox.showerror("Ошибка", f"Ошибка при создании папки '{name}' в директории '{curr_path}': {e}")
             return None
     
-    def create_folder_dialog(self):
+    def create_folder_dialog(self, option):
         name = simpledialog.askstring("Новая папка", "Введите название папки:", parent=window)
         if FolderManager.validate_name(self, name):
             level = simpledialog.askinteger("Уровень секретности", "Выберите уровень секретности (от 1 до 15):",initialvalue=1, minvalue=1, maxvalue=15,parent=window)
             if level: 
                 FolderManager.create_new_folder(self,name, level)
+        name = simpledialog.askstring(f"{option} папку", "Введите название папки:", parent=window)
+        if FolderManager.validate_name(self, name, option):
+            if option=="Удалить":
+                FolderManager.del_folder(self,name)
+                return 0
+            if option=="Изменить":
+                new_name = simpledialog.askstring(f"Изменить название папки", "Введите новое название папки", parent=window)
+                if FolderManager.validate_name(self, new_name, option):
+                    level = simpledialog.askinteger(f"Изменить название папки", "Выберите уровень секретности (от 1 до 15):", minvalue=1, maxvalue=15,parent=window)
+                    if level: 
+                        FolderManager.change_folder_name(self,name,new_name, level)
+            if option=="Создать":
+                    level = simpledialog.askinteger(f"Создать папку", "Выберите уровень секретности (от 1 до 15):", minvalue=1, maxvalue=15,parent=window)
+                    if level: 
+                        FolderManager.create_security_level(self,name, level)
 
 
     def validate_name(self, name):
@@ -255,11 +269,11 @@ if __name__=="__main__":
     
 
     #Папки мамки
-    CreateFolder = Button(window, text = 'Создать папку', command = lambda:folder_manager.create_folder_dialog())
+    CreateFolder = Button(window, text = 'Создать папку', command = lambda:folder_manager.create_folder_dialog("Создать"))
     CreateFolder.place(x=460,y=10,width=126,height=35)
-    ChangeFolder = Button(window, text = 'Изменить уровень\nпапки', command = lambda:empty())
+    ChangeFolder = Button(window, text = 'Изменить уровень\nпапки', command = lambda:folder_manager.create_folder_dialog("Изменить"))
     ChangeFolder.place(x=460,y=60,width=126,height=35)
-    DelFolder = Button(window, text = 'Удалить папку', command = lambda:empty())
+    DelFolder = Button(window, text = 'Удалить папку', command = lambda:folder_manager.create_folder_dialog("Удалить"))
     DelFolder.place(x=460,y=110,width=126,height=35)
 
     #Копирование папок
