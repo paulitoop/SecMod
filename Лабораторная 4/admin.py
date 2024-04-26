@@ -122,7 +122,7 @@ class FolderManager:
             for line in file:
                 parts = line.strip().split(":")
                 name = parts[0]
-                level = int(parts[1])
+                level = parts[1]
                 self.folder_levels[name] = level
 
     def write_security_levels(self):
@@ -227,7 +227,7 @@ class FolderManager:
                 for dir_name in dirs:
                     dir_path = os.path.join(root, dir_name)
                     rel_dir_path = os.path.relpath(dir_path, root_dir)
-                    f.write(f"{rel_dir_path}:1\n")
+                    f.write(f"{rel_dir_path}:public\n")
         print("Данные успешно записаны в файл folder_levels.txt.")
 
 def on_double_click( event):
