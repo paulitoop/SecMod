@@ -3,6 +3,7 @@ import tkinter as tk
 from tkinter import simpledialog
 from tkinter import messagebox
 import os
+import shutil
 
 
 
@@ -16,8 +17,10 @@ def empty():
 
 class SecurityManager:
     def __init__(self):
+        self.folder_levels ={}
         self.security_levels = {}  # Словарь для хранения уровней секретности
         SecurityManager.read_levels(self)
+        FolderManager.read_security_levels(self)
         if 'public' not in self.security_levels:
             self.security_levels['public'] = 1
             SecurityManager.write_levels(self)
@@ -27,28 +30,61 @@ class SecurityManager:
         if name not in self.security_levels:
             self.security_levels[name] = level
             SecurityManager.write_levels(self)
+            SecurityManager.update(self)
             messagebox.showinfo("Уведомление", f"Уровень секретности '{name}' создан успешно.")
         else:
             messagebox.showerror("Ошибка", "Уровень секретности с таким именем уже существует.")
 
+    def update(self):
+        SecurityManager.read_levels(self)
+        SecurityManager.show_levels(self)
+        FolderManager.read_levels(self)
+
     def change_security_level(self, name, new_name, level):
-        if name in self.security_levels:
-            self.security_levels[new_name] = level
-            del self.security_levels[name]
-            SecurityManager.write_levels(self)
-            messagebox.showinfo("Уведомление", f"Уровень секретности '{name}' изменен на '{new_name}' успешно.")
+        if name != new_name:
+            if name in self.security_levels:
+                self.security_levels[new_name] = level
+                del self.security_levels[name]
+                SecurityManager.write_levels(self)
+                FolderManager.read_security_levels(self)
+                for folder, level in self.folder_levels.items():
+                    if level == name:
+                        self.folder_levels[folder] = new_name
+                FolderManager.write_security_levels(self)
+                FolderManager.show_levels(self)
+                SecurityManager.write_levels(self)
+                SecurityManager.update(self)
+                
+
+                messagebox.showinfo("Уведомление", f"Уровень секретности '{name}' изменен на '{new_name}' успешно.")
+                
+            else:
+                messagebox.showerror("Ошибка", "Уровень секретности с таким именем отсутствует.")
         else:
-            messagebox.showerror("Ошибка", "Уровень секретности с таким именем отсутствует.")
+            self.security_levels[new_name] = level
+            SecurityManager.write_levels(self)
+            SecurityManager.update(self)
+        
+            messagebox.showinfo("Уведомление", f"Уровень секретности '{name}' изменен на '{new_name}' успешно.")
+        
     
     def del_security_level(self,name):
         if name in self.security_levels:
             del self.security_levels[name]
+            FolderManager.read_security_levels(self)
+            for folder, level in self.folder_levels.items():
+                if level == name:
+                    self.folder_levels[folder] = "public"
+            FolderManager.write_security_levels(self)
+            FolderManager.show_levels(self)
             SecurityManager.write_levels(self)
+            SecurityManager.update(self)
             messagebox.showinfo("Уведомление", f"Уровень секретности '{name}' удален успешно.")
         else:
             messagebox.showerror("Ошибка", "Уровень секретности с таким именем отсутствует.")
     
     def security_level_dialog(self, option):
+        print(self.folder_levels)
         name = simpledialog.askstring(f"{option} уровень секретности", "Введите название уровня секретности:", parent=window)
         if SecurityManager.validate_name(self, name, option):
             if option=="Удалить":
@@ -111,11 +147,83 @@ class FolderManager:
         self.security_levels = {}
         self.listbox = ListFiles
         curr_path = self.rootDir
+        self.CopyPath = ""
+        self.PastePath = ""
         FolderManager.show_files(self, self.rootDir, self.listbox)
         FolderManager.fill_folder_levels(self.rootDir, "folder_levels.txt")
         FolderManager.read_security_levels(self)
+        FolderManager.read_levels(self)
         FolderManager.show_levels(self)
 
+    def copy_files(self):
+        selection = ListFiles.curselection()
+        if selection:
+            folderName = ListFiles.get(selection[0])
+            self.CopyPath = os.path.join(curr_path, folderName)
+            # if os.path.isdir(fullPath):
+            #     print("Папка")
+            # if os.path.isfile(fullPath):
+            #     print("Файл")
+            rel_path = os.path.relpath( self.CopyPath,self.rootDir)
+            level_name = self.folder_levels[rel_path]
+            lavel_value = self.security_levels[level_name]
+            
+            print(level_name, lavel_value)
+            messagebox.showinfo("Копирование", "Выбирете папку назначения\nи нажмите 'Копировать сюда'")
+            folders_files = []
+            self.listbox.delete(0, tk.END)
+            for name in self.folder_levels:
+                if lavel_value <= self.security_levels[self.folder_levels[name]]:
+                    folders_files.append(name)
+           #print(folders_files)
+            for item in folders_files:
+                self.listbox.insert(tk.END, item)
+        else:
+            messagebox.showerror("Ошибка", "Выберите папку или файл для копирования")
+            return None
+
+    def make_copy(self):
+        
+        selection = ListFiles.curselection()
+        if selection:
+            folderName = ListFiles.get(selection[0])
+            self.PastePath = os.path.join(self.rootDir, folderName)
+            rel_path = os.path.relpath( self.PastePath,self.rootDir)
+            level_name = self.folder_levels[rel_path]
+            lavel_value = self.security_levels[level_name]
+
+            for root, dirs, files in os.walk(self.CopyPath):
+                for dir_name in dirs:
+                    src_dir_path = os.path.join(root, dir_name)
+                    dst_dir_path = os.path.join(self.PastePath, os.path.relpath(src_dir_path, self.CopyPath))
+                    rel_src_dir_path = os.path.relpath(src_dir_path, self.rootDir)
+                    tmp_level_name = self.folder_levels[rel_src_dir_path]
+                    tmp_lavel_value = self.security_levels[tmp_level_name]
+                    if tmp_lavel_value <=lavel_value:
+                        shutil.copytree(src_dir_path, dst_dir_path)
+                        tmp_rel_path = os.path.relpath(dst_dir_path, self.rootDir)
+                        tmp_rel_copy_path = os.path.relpath(src_dir_path, self.rootDir)
+                        self.folder_levels[tmp_rel_path] = self.folder_levels[tmp_rel_copy_path]
+                        FolderManager.write_security_levels(self)
+                        FolderManager.update(self)
+                        print(tmp_rel_path, tmp_lavel_value)
+
+            FolderManager.show_files(self, curr_path, self.listbox)
+        else:
+            messagebox.showerror("Ошибка", "Выберите папку или файл для копирования")
+            FolderManager.show_files(self, curr_path, self.listbox)
+            return None
+        
+    def read_levels(self):
+        if not os.path.exists("levels.txt"):
+            file = open("levels.txt", "w")
+            file.close()
+        with open("levels.txt", "r") as file:
+            for line in file:
+                parts = line.strip().split(":")
+                name = parts[0]
+                level = int(parts[1])
+                self.security_levels[name] = level
 
     def read_security_levels(self):
         with open("folder_levels.txt", "r") as file:
@@ -130,6 +238,11 @@ class FolderManager:
             for name, level in self.folder_levels.items():
                 file.write(f"{name}:{level}\n")
 
+    def update(self):
+        FolderManager.write_security_levels(self)
+        FolderManager.read_security_levels(self)
+        FolderManager.show_levels(self)
+
     def show_levels(self):
         FilesLevels.config(state=NORMAL)
         FilesLevels.delete("1.0", END)
@@ -137,46 +250,101 @@ class FolderManager:
             FilesLevels.insert(END, f"{name} : {level}\n")
         FilesLevels.config(state=DISABLED)
 
-    def create_new_folder(self,name, level):
+    def create_new_folder(self,name):
         global curr_path
+        level = "public"
+        root_dir = self.rootDir
         new_folder_path = os.path.join(curr_path, name)  # Полный путь к новой папке
         try:
             os.mkdir(new_folder_path)  # Создаем новую папку
-            messagebox.showinfo("Уведомление", f"Папка '{name}' с уровнем {level} успешно создана")
+            messagebox.showinfo("Уведомление", f"Папка '{name}' с уровнем '{level}' успешно создана")
             FolderManager.show_files(self, curr_path, self.listbox)
+            with open("folder_levels.txt", 'a+') as f:
+                rel_dir_path = os.path.relpath(new_folder_path, root_dir)
+                f.write(f"{rel_dir_path}:public\n")
+            FolderManager.read_security_levels(self)
+            FolderManager.show_levels(self)
+            print("Данные успешно записаны в файл folder_levels.txt.")
             return 0
         except OSError as e:
             messagebox.showerror("Ошибка", f"Ошибка при создании папки '{name}' в директории '{curr_path}': {e}")
             return None
     
+    def del_folder(self):
+        selection = ListFiles.curselection()
+        if selection:
+            folderName = ListFiles.get(selection[0])
+            fullPath = os.path.join(curr_path, folderName)
+            confirmed = messagebox.askyesno("Подтверждение", "Вы уверены, что хотите удалить папку?")
+            if confirmed:   
+                try:
+                    rel_path = os.path.relpath(fullPath, self.rootDir)
+                    self.folder_levels.pop(rel_path)
+                    FolderManager.update(self)
+                    
+                    os.rmdir(fullPath)
+                    messagebox.showinfo("Успех", "Папка удалена")
+                except OSError as e:
+                    messagebox.showerror("Ошибка", "Папка должна быть пустой")
+            else:
+                messagebox.showinfo("Информация", "Удаление отменено")
+        else:
+            messagebox.showerror("Ошибка", "Выберите папку")
+            return None
+        FolderManager.show_files(self, curr_path, self.listbox)
+
+    def change_folder_name(self):
+        print(self.security_levels)
+        FolderManager.read_security_levels(self)
+        selection = ListFiles.curselection()
+        if selection:
+            folderName = ListFiles.get(selection[0])
+            fullPath = os.path.join(curr_path, folderName)
+            new_name = simpledialog.askstring(f"Изменить название папки", "Введите новое название папки", parent=window)
+            if FolderManager.validate_name(self, new_name):
+                level = simpledialog.askstring(f"Изменить название папки", "Выберите уровень секретности:",parent=window)
+                if level in self.security_levels:
+                    new_path = os.path.join(curr_path, new_name)
+                    os.rename(fullPath,  new_path)
+                    rel_old_path = os.path.relpath(fullPath, self.rootDir)
+                    rel_new_path = os.path.relpath(new_path, self.rootDir)
+                    print(rel_old_path)
+                    print(rel_new_path)
+                    self.folder_levels[rel_new_path] = self.folder_levels.pop(rel_old_path)
+                    self.folder_levels[rel_new_path] = level
+                    FolderManager.update(self)
+                    messagebox.showinfo("Информация", "Папка изменена успешно")
+                    FolderManager.show_files(self, curr_path, self.listbox)
+                else:
+                    print(self.security_levels)
+                    messagebox.showerror("Ошибка", "Уровень секретности не существует")
+                    return None
+
+        else:
+            messagebox.showerror("Ошибка", "Выберите папку")
+            return None
+
+
     def create_folder_dialog(self, option):
-        name = simpledialog.askstring("Новая папка", "Введите название папки:", parent=window)
-        if FolderManager.validate_name(self, name):
-            level = simpledialog.askinteger("Уровень секретности", "Выберите уровень секретности (от 1 до 15):",initialvalue=1, minvalue=1, maxvalue=15,parent=window)
-            if level: 
-                FolderManager.create_new_folder(self,name, level)
-        name = simpledialog.askstring(f"{option} папку", "Введите название папки:", parent=window)
-        if FolderManager.validate_name(self, name, option):
-            if option=="Удалить":
-                FolderManager.del_folder(self,name)
-                return 0
-            if option=="Изменить":
-                new_name = simpledialog.askstring(f"Изменить название папки", "Введите новое название папки", parent=window)
-                if FolderManager.validate_name(self, new_name, option):
-                    level = simpledialog.askinteger(f"Изменить название папки", "Выберите уровень секретности (от 1 до 15):", minvalue=1, maxvalue=15,parent=window)
-                    if level: 
-                        FolderManager.change_folder_name(self,name,new_name, level)
-            if option=="Создать":
-                    level = simpledialog.askinteger(f"Создать папку", "Выберите уровень секретности (от 1 до 15):", minvalue=1, maxvalue=15,parent=window)
-                    if level: 
-                        FolderManager.create_security_level(self,name, level)
+        print(self.security_levels)
+        print(self.folder_levels)
+        levelsList = list(self.security_levels.keys())
+        global curr_path
+        if option=="Удалить":
+            FolderManager.del_folder(self)
+        if option=="Изменить":
+            FolderManager.change_folder_name(self)
+        if option=="Создать":
+            name = simpledialog.askstring(f"{option} папку", "Введите название папки:", parent=window)
+            if FolderManager.validate_name(self, name):
+                FolderManager.create_new_folder(self,name)
 
 
     def validate_name(self, name):
         if name in self.security_levels:
             messagebox.showerror("Ошибка", "Уровень секретности с таким именем занят")
             return False
-        elif name and all(c.isalnum() or c == '_' for c in name):
+        elif name and all(c.isalnum() or c == '_' or c ==' ' for c in name):
             return True
         else:
             messagebox.showerror("Ошибка", "Имя уровня секретности папки должно содержать только буквы, цифры и подчеркивания.")
@@ -252,7 +420,7 @@ def on_double_click( event):
 
 
 if __name__=="__main__":
-    sec_manager = SecurityManager()
+    
     
     window = Tk()
     window.title("Панель управления")
@@ -278,17 +446,21 @@ if __name__=="__main__":
     #Папки мамки
     CreateFolder = Button(window, text = 'Создать папку', command = lambda:folder_manager.create_folder_dialog("Создать"))
     CreateFolder.place(x=460,y=10,width=126,height=35)
-    ChangeFolder = Button(window, text = 'Изменить уровень\nпапки', command = lambda:folder_manager.create_folder_dialog("Изменить"))
+    ChangeFolder = Button(window, text = 'Изменить папку', command = lambda:folder_manager.create_folder_dialog("Изменить"))
     ChangeFolder.place(x=460,y=60,width=126,height=35)
     DelFolder = Button(window, text = 'Удалить папку', command = lambda:folder_manager.create_folder_dialog("Удалить"))
     DelFolder.place(x=460,y=110,width=126,height=35)
 
     #Копирование папок
-    CopyFolder = Button(window, text = 'Копировать файлы', command = lambda:empty())
+    CopyFolder = Button(window, text = 'Копировать файлы', command = lambda:folder_manager.copy_files())
     CopyFolder.place(x=240,y=10,width=126,height=35)
 
+    #Подтверждение копирования
+    CopyFolder = Button(window, text = 'Копировать сюда', command = lambda:folder_manager.make_copy())
+    CopyFolder.place(x=240,y=60,width=126,height=35)
+
     BackButton = Button(window, text = 'Назад', command = lambda:folder_manager.go_back())
-    BackButton.place(x=240,y=60,width=126,height=35)
+    BackButton.place(x=240,y=110,width=126,height=35)
 
     #Дирректории
     ListFiles = tk.Listbox(window)
@@ -322,5 +494,6 @@ if __name__=="__main__":
     LabelPath.place(x=240,y=160,width=342,height=30)
 
     folder_manager = FolderManager(ListFiles)
+    sec_manager = SecurityManager()
     sec_manager.show_levels()
     mainloop()
