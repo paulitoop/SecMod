@@ -173,8 +173,9 @@ class FolderManager:
             folders_files = []
             self.listbox.delete(0, tk.END)
             for name in self.folder_levels:
-                if lavel_value <= self.security_levels[self.folder_levels[name]]:
-                    folders_files.append(name)
+                if name != rel_path:
+                    if lavel_value <= self.security_levels[self.folder_levels[name]]:
+                        folders_files.append(name)
            #print(folders_files)
             for item in folders_files:
                 self.listbox.insert(tk.END, item)
@@ -296,6 +297,7 @@ class FolderManager:
     def change_folder_name(self):
         print(self.security_levels)
         FolderManager.read_security_levels(self)
+        FolderManager.read_levels(self)
         selection = ListFiles.curselection()
         if selection:
             folderName = ListFiles.get(selection[0])
