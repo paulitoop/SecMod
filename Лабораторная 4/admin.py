@@ -39,6 +39,7 @@ class SecurityManager:
         SecurityManager.read_levels(self)
         SecurityManager.show_levels(self)
         FolderManager.read_levels(self)
+        FolderManager.read_security_levels(self)
 
     def change_security_level(self, name, new_name, level):
         if name != new_name:
@@ -156,6 +157,7 @@ class FolderManager:
         FolderManager.show_levels(self)
 
     def copy_files(self):
+        FolderManager.read_security_levels(self)
         selection = ListFiles.curselection()
         if selection:
             folderName = ListFiles.get(selection[0])
@@ -165,10 +167,29 @@ class FolderManager:
             # if os.path.isfile(fullPath):
             #     print("Файл")
             rel_path = os.path.relpath( self.CopyPath,self.rootDir)
-            level_name = self.folder_levels[rel_path]
-            lavel_value = self.security_levels[level_name]
+            mas = rel_path.split("\\")
+            lv_max = 1
+            if len(mas) != 1:
+                for i in range(len(mas)):
+                    st = str(mas[0])
+                    for k in range(1,i+1):
+                        st += "\\"
+                        st += str(mas[k])
+                    
+                    print(st) 
+                    level_name = self.folder_levels[st]
+                    lavel_value = self.security_levels[level_name]
+                    if lv_max < lavel_value:
+                        lv_max = lavel_value
+                    
+
+            lavel_value = lv_max
+            print(lavel_value)
+           
+            # level_name = self.folder_levels[rel_path]
+            # lavel_value = self.security_levels[level_name]
             
-            print(level_name, lavel_value)
+            #print(level_name, lavel_value)
             messagebox.showinfo("Копирование", "Выбирете папку назначения\nи нажмите 'Копировать сюда'")
             folders_files = []
             self.listbox.delete(0, tk.END)
@@ -176,7 +197,7 @@ class FolderManager:
                 if name != rel_path:
                     if lavel_value <= self.security_levels[self.folder_levels[name]]:
                         folders_files.append(name)
-           #print(folders_files)
+            #print(folders_files)
             for item in folders_files:
                 self.listbox.insert(tk.END, item)
         else:
@@ -262,7 +283,11 @@ class FolderManager:
             FolderManager.show_files(self, curr_path, self.listbox)
             with open("folder_levels.txt", 'a+') as f:
                 rel_dir_path = os.path.relpath(new_folder_path, root_dir)
-                f.write(f"{rel_dir_path}:public\n")
+                rel_par_path = os.path.relpath(curr_path, root_dir)
+                parent_level = self.folder_levels[rel_par_path]
+                
+                print(rel_par_path, parent_level)
+                f.write(f"{rel_dir_path}:{parent_level}\n")
             FolderManager.read_security_levels(self)
             FolderManager.show_levels(self)
             print("Данные успешно записаны в файл folder_levels.txt.")
@@ -270,7 +295,8 @@ class FolderManager:
         except OSError as e:
             messagebox.showerror("Ошибка", f"Ошибка при создании папки '{name}' в директории '{curr_path}': {e}")
             return None
-    
+        
+
     def del_folder(self):
         selection = ListFiles.curselection()
         if selection:
@@ -365,7 +391,8 @@ class FolderManager:
     def get_root_dir(self):
         current_file = os.path.abspath(__file__)
         root_dir = os.path.dirname(current_file)
-        return root_dir
+        
+        return "c:\\Users\\pashc\\Desktop\\Уник\\Модели безопасности КС\\Лабораторная 4"
 
     def go_back(self):
         global curr_path
