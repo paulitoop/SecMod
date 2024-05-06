@@ -5,16 +5,6 @@ from tkinter import messagebox
 import os
 import shutil
 
-
-
-curr_path = ""
-def empty():
-    print("Hello world!")
-    matrix.config(state=NORMAL)
-    matrix.insert(END, "+ ")
-    matrix.config(state=DISABLED)
-    return 0
-
 class SecurityManager:
     def __init__(self):
         self.folder_levels ={}
@@ -162,10 +152,6 @@ class FolderManager:
         if selection:
             folderName = ListFiles.get(selection[0])
             self.CopyPath = os.path.join(curr_path, folderName)
-            # if os.path.isdir(fullPath):
-            #     print("Папка")
-            # if os.path.isfile(fullPath):
-            #     print("Файл")
             rel_path = os.path.relpath( self.CopyPath,self.rootDir)
             mas = rel_path.split("\\")
             lv_max = 1
@@ -181,15 +167,8 @@ class FolderManager:
                     lavel_value = self.security_levels[level_name]
                     if lv_max < lavel_value:
                         lv_max = lavel_value
-                    
-
             lavel_value = lv_max
             print(lavel_value)
-           
-            # level_name = self.folder_levels[rel_path]
-            # lavel_value = self.security_levels[level_name]
-            
-            #print(level_name, lavel_value)
             messagebox.showinfo("Копирование", "Выбирете папку назначения\nи нажмите 'Копировать сюда'")
             folders_files = []
             self.listbox.delete(0, tk.END)
@@ -197,7 +176,6 @@ class FolderManager:
                 if name != rel_path:
                     if lavel_value <= self.security_levels[self.folder_levels[name]]:
                         folders_files.append(name)
-            #print(folders_files)
             for item in folders_files:
                 self.listbox.insert(tk.END, item)
         else:
@@ -205,7 +183,6 @@ class FolderManager:
             return None
 
     def make_copy(self):
-        
         selection = ListFiles.curselection()
         if selection:
             folderName = ListFiles.get(selection[0])
@@ -352,7 +329,6 @@ class FolderManager:
     def create_folder_dialog(self, option):
         print(self.security_levels)
         print(self.folder_levels)
-        levelsList = list(self.security_levels.keys())
         global curr_path
         if option=="Удалить":
             FolderManager.del_folder(self)
@@ -392,7 +368,6 @@ class FolderManager:
 
     def go_back(self):
         global curr_path
-        #current_path = folder_manager.current_path
         if curr_path == self.rootDir:  # Если текущий путь - корневая директория
             messagebox.showinfo("Информация", "Вы уже в корневой директории.")
             return -1
@@ -415,8 +390,6 @@ class FolderManager:
             return
         with open(levels_file, 'w') as f:
             for root, dirs, files in os.walk(root_dir):
-                # rel_path = os.path.relpath(root, root_dir)
-                # f.write(f"{rel_path}:1\n")
                 for dir_name in dirs:
                     dir_path = os.path.join(root, dir_name)
                     rel_dir_path = os.path.relpath(dir_path, root_dir)
@@ -446,18 +419,14 @@ def on_double_click( event):
 
 if __name__=="__main__":
     
-    
     window = Tk()
     window.title("Панель управления")
     window.geometry('600x500')
     window.resizable(False, False)
     window.configure(background="#b2b6db")
-  
 
     for i in range(2): window.columnconfigure(index=i,weight=1)
     for i in range(4): window.rowconfigure(index=i, weight=1)
-
-    
 
     #Уровни секретности
     CreateLevel = Button(window, text = 'Создать уровень\nсекретности', command = lambda:sec_manager.security_level_dialog("Создать"))
@@ -467,7 +436,6 @@ if __name__=="__main__":
     DelLevel = Button(window, text = 'Удалить уровень\nсекретности', command = lambda:sec_manager.security_level_dialog("Удалить"))
     DelLevel.place(x=10, y = 110,width=126,height=35)
     
-
     #Папки мамки
     CreateFolder = Button(window, text = 'Создать папку', command = lambda:folder_manager.create_folder_dialog("Создать"))
     CreateFolder.place(x=460,y=10,width=126,height=35)
