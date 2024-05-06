@@ -283,11 +283,7 @@ class FolderManager:
             FolderManager.show_files(self, curr_path, self.listbox)
             with open("folder_levels.txt", 'a+') as f:
                 rel_dir_path = os.path.relpath(new_folder_path, root_dir)
-                rel_par_path = os.path.relpath(curr_path, root_dir)
-                parent_level = self.folder_levels[rel_par_path]
-                
-                print(rel_par_path, parent_level)
-                f.write(f"{rel_dir_path}:{parent_level}\n")
+                f.write(f"{rel_dir_path}:public\n")
             FolderManager.read_security_levels(self)
             FolderManager.show_levels(self)
             print("Данные успешно записаны в файл folder_levels.txt.")
